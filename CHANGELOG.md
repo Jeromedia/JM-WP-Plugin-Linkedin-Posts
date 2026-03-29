@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.19] - 2026-03-29
+
+### Added
+
+- "Update Now" in wordpress
+
 ## [v1.18.1] - 2026-03-29
 
 ### Added
