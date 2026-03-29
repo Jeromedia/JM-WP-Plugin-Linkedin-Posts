@@ -61,17 +61,24 @@ add_filter('site_transient_update_plugins', function ($transient) {
         ]
     ]);
 
+    // Debug: log the API response
+    if (is_wp_error($response)) {
+        error_log('GitHub API Error: ' . $response->get_error_message());
+    } else {
+        error_log('GitHub API Response: ' . wp_remote_retrieve_body($response));
+    }
+
     if (is_wp_error($response)) return $transient;
 
     $release_data = json_decode(wp_remote_retrieve_body($response), true);
 
-    if (version_compare($release_data['tag_name'], $current_version, '>')) {
+    if (isset($release_data['tag_name']) && version_compare($release_data['tag_name'], $current_version, '>')) {
         $transient->response[$plugin_slug] = [
             'slug'        => JM_LI_PLUGIN_FOLDER,
             'plugin'      => $plugin_slug,
             'new_version' => $release_data['tag_name'],
-            'url'         => $release_data['html_url'],
-            'package'     => $release_data['zipball_url']
+            'url'         => $release_data['html_url'] ?? '',
+            'package'     => $release_data['zipball_url'] ?? ''
         ];
     }
 
