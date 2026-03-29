@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.19.1] - 2026-03-29
+
+### Updated
+
+- gitignore for zip files
+
 ## [v1.19] - 2026-03-29
 
 ### Added
