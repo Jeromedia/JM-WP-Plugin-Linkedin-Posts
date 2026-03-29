@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.18.1] - 2026-03-29
+
+### Added
+
+- Debug logging for GitHub API response handling
+
 ## [v1.18] - 2025-04-21
 
 ### Removed
