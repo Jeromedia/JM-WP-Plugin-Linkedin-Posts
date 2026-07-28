@@ -2,32 +2,35 @@
     <div>
         <div class="jmli-posts">
             <?php
-            $logo = $data['meta']['logo'] ?? null;
-            $followers = $data['meta']['followers'] ?? null;
-            $posts = $data['posts'] ?? [];
+            $logo = is_array($data) ? ($data['meta']['logo'] ?? null) : null;
+            $followers = is_array($data) ? ($data['meta']['followers'] ?? null) : null;
+            $posts = is_array($data) ? ($data['posts'] ?? []) : [];
             // print_r($posts);
 
             if (!empty($posts)) {
                 $limitedPosts = array_slice($posts, 0, $set_posts_limit);
             
                 foreach ($limitedPosts as $post) {
-                    $timestamp_ms = $post['publishedAt'];
+                    if (!is_array($post)) {
+                        continue;
+                    }
+                    $timestamp_ms = isset($post['publishedAt']) ? (int) $post['publishedAt'] : 0;
                     // Convert milliseconds to seconds
                     $timestamp = $timestamp_ms / 1000;
                     // Get current time
                     $current_time = current_time('timestamp');
                     // Get human-readable difference
                     $diff = human_time_diff($timestamp, $current_time);
-                    if ($post['lifecycleState'] == "PUBLISHED" && $post['visibility'] == "PUBLIC") {
+                    if (($post['lifecycleState'] ?? '') === "PUBLISHED" && ($post['visibility'] ?? '') === "PUBLIC") {
                         ?>
-                        <a class="jmli-post-card" target="_blank" href="<?php echo $post['postUrl'] ?? "#"; ?>">
+                        <a class="jmli-post-card" target="_blank" rel="noopener noreferrer" href="<?php echo esc_url($post['postUrl'] ?? '#'); ?>">
                             <div class="jmli-post-card-header">
-                                <div class="jmli-logo"><img width="48px" src="<?php echo $logo; ?>"
+                                <div class="jmli-logo"><img width="48px" src="<?php echo esc_url($logo); ?>"
                                         alt="Logo">
                                 </div>
                                 <div class="company">
-                                    <div class="companyName"><?php echo ucfirst($companyName); ?></div>
-                                    <div class="companyFollowers"><?php echo $followers; ?> followers
+                                    <div class="companyName"><?php echo esc_html(ucfirst((string) $companyName)); ?></div>
+                                    <div class="companyFollowers"><?php echo esc_html((string) $followers); ?> followers
                                     </div>
                                     <div class="postDate">
                                         <span>
@@ -45,21 +48,22 @@
                             <div class="jmli-post-card-body">
                                 <div class="jmli-post-card-body-text">
                                     <?php
-                                    $commentary = esc_html($post['commentary']);
-                                    echo mb_strimwidth($commentary, 0, 150, '&nbsp;&nbsp;&nbsp;<span style="color:#9b9b9b">...more</span>');
+                                    $commentary = (string) ($post['commentary'] ?? '');
+                                    echo esc_html(mb_strimwidth($commentary, 0, 150, ''));
+                                    if (mb_strwidth($commentary) > 150) { echo '&nbsp;&nbsp;&nbsp;<span style="color:#9b9b9b">...more</span>'; }
                                     ?>
                                 </div>
                             </div>
                             <div class="jmli-post-card-footer">
                                 <?php if (isset($post['content']['media']['imageUrl'])) { ?>
                                     <div class="media">
-                                        <img src="<?php echo $post['content']['media']['imageUrl']; ?>" alt="image">
+                                        <img src="<?php echo esc_url($post['content']['media']['imageUrl']); ?>" alt="image">
                                     </div>
                                 <?php } ?>
                                 <?php if (isset($post['content']['article'])) { ?>
                                     <div class="article">
                                         <div class="thumbnail"><img src="" alt=""></div>
-                                        <div class="title"><?php echo $post['content']['article']['title']; ?></div>
+                                        <div class="title"><?php echo esc_html((string) ($post['content']['article']['title'] ?? '')); ?></div>
                                     </div>
 
                                 <?php } ?>

@@ -1,15 +1,13 @@
 <?php
 
-if (isset($_POST['jm_li_save_settings'])) {
-    jm_li_save_custom_settings($_POST);
+$result = jm_li_handle_settings_submission($_POST);
+if (is_wp_error($result)) {
+    echo '<div class="error"><p>' . esc_html($result->get_error_message()) . '</p></div>';
+} elseif ($result === true && isset($_POST['jm_li_save_settings'])) {
     echo '<div class="updated"><p>Settings saved.</p></div>';
-}
-if (isset($_POST['jm_li_save_settings_cache'])) {
-    jm_li_save_custom_settings_cache($_POST);
+} elseif ($result === true && isset($_POST['jm_li_save_settings_cache'])) {
     echo '<div class="updated"><p>Cache saved.</p></div>';
-}
-if (isset($_POST['jm_li_clear_cache']) && $_POST['jm_li_clear_cache'] == 1) {
-    jm_li_cache_clear_all();
+} elseif ($result === true && isset($_POST['jm_li_clear_cache'])) {
     echo '<div class="updated"><p>Cache cleared successfully.</p></div>';
 }
 
@@ -31,6 +29,7 @@ $api_base_url = jm_li_get_custom_setting('jm_li_settings_api_base_url');
     <p>Welcome to the Settings of JM LinkedIn Posts.</p>
 
     <form method="post">
+        <?php wp_nonce_field('jm_li_save_settings', 'jm_li_settings_nonce'); ?>
         <h2>Company Details</h2>
         <div class="jmli-settings-section">
             <div>
@@ -57,7 +56,7 @@ $api_base_url = jm_li_get_custom_setting('jm_li_settings_api_base_url');
 
                     <?php } else { ?>
                         <div class="jmli-fake-input">
-                            <?php echo esc_attr($api_base_url); ?></td>
+                            <?php echo esc_html($api_base_url); ?></td>
                         </div>
                         <input type="hidden" name="jm_li_settings_api_base_url"
                             value="<?php echo esc_attr($api_base_url); ?>">
@@ -105,6 +104,7 @@ $api_base_url = jm_li_get_custom_setting('jm_li_settings_api_base_url');
     <div class="jmli-settings-section">
         <div>
             <form method="post">
+                <?php wp_nonce_field('jm_li_save_cache_settings', 'jm_li_cache_nonce'); ?>
                 <table class="form-table">
                     <tr>
                         <th scope="row"><label for="jm_li_settings_cache_timeout">Cache Timeout (in sec)</label></th>
@@ -122,6 +122,7 @@ $api_base_url = jm_li_get_custom_setting('jm_li_settings_api_base_url');
                 </table>
             </form>
             <form method="post" action="">
+                <?php wp_nonce_field('jm_li_clear_cache', 'jm_li_clear_cache_nonce'); ?>
                 <input type="hidden" name="jm_li_clear_cache" value="1">
                 <?php submit_button('Clear Cache', 'secondary', 'clear_cache_button'); ?>
             </form>

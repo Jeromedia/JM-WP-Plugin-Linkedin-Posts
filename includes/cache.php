@@ -14,7 +14,8 @@ function jm_li_cache_get($key)
     );
 
     if ($row && intval($row['expires_at']) > time()) {
-        return maybe_unserialize($row['cache_value']);
+        $value = json_decode($row['cache_value'], true);
+        return is_array($value) ? $value : false;
     }
 
     return false;
@@ -26,7 +27,14 @@ function jm_li_cache_set($key, $value, $duration)
     $table = $wpdb->prefix . 'jmli_cache';
 
     $expires_at = time() + $duration;
-    $serialized_value = maybe_serialize($value);
+    if (!is_array($value)) {
+        return false;
+    }
+
+    $serialized_value = wp_json_encode($value);
+    if ($serialized_value === false) {
+        return false;
+    }
 
     $existing = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table WHERE cache_key = %s", $key));
 
@@ -63,6 +71,6 @@ function jm_li_cache_clear_all()
     global $wpdb;
     $table = $wpdb->prefix . 'jmli_cache';
 
-    $wpdb->query("TRUNCATE TABLE $table");
+    $wpdb->query("DELETE FROM $table");
     return true;
 }
