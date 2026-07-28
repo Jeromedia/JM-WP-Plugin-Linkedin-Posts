@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.20.0] - 2026-07-28
+
+### Updated
+
+- Define GitHub updater release asset filenames internally and validate release checksums.
+
 ## [v1.19.2] - 2026-03-29
 
 ### Updated
